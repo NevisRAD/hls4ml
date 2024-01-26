@@ -502,16 +502,16 @@ class DenseBatchnorm(Dense):
         W_fold = gamma * W / sqrt(variance + epsilon)
         bias_fold = gamma * (bias - moving_mean) / sqrt(variance + epsilon) + beta
         """
-        kernel = self.model.get_weights_data(self.name, 'kernel')
-        bias = self.model.get_weights_data(self.name, 'bias')
+        kernel = self.get_attr('weight_data')
+        bias = self.get_attr('bias_data')
         if bias is None:
             bias = 0
 
         # get batchnorm weights and moving stats
-        gamma = self.model.get_weights_data(self.name, 'gamma')
-        beta = self.model.get_weights_data(self.name, 'beta')
-        moving_mean = self.model.get_weights_data(self.name, 'moving_mean')
-        moving_variance = self.model.get_weights_data(self.name, 'moving_variance')
+        gamma = self.get_attr('gamma_data')
+        beta = self.get_attr('beta_data')
+        moving_mean = self.get_attr('mean_data')
+        moving_variance = self.get_attr('variance_data')
         # get the inversion factor so that we replace division by multiplication
         inv = np.reciprocal(np.sqrt(moving_variance + self.get_attr('epsilon')))
         if gamma is not None:
@@ -519,7 +519,9 @@ class DenseBatchnorm(Dense):
 
         # wrap conv kernel and bias with bn parameters
         folded_kernel = inv * kernel
-        folded_bias = inv * (bias - moving_mean) + beta
+        folded_bias = inv * (bias - moving_mean)
+        if beta is not None:
+            folded_bias += beta
 
         return [folded_kernel, folded_bias]
 
@@ -557,6 +559,7 @@ class Conv(Layer):
             dims = [f'OUT_HEIGHT_{self.index}', f'OUT_WIDTH_{self.index}', f'N_FILT_{self.index}']
 
         self.add_output_variable(shape, dims)
+
 
 
 class Conv1D(Layer):
