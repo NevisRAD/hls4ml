@@ -219,7 +219,9 @@ def convert_from_keras_model(
     if 'KerasModel' in config:
         import keras
 
-        if keras.__version__ >= '3.0':
+        model = config.get('KerasModel')
+        _is_keras_v3 = keras.__version__ >= '3.0' and not type(model).__module__.startswith('tf_keras')
+        if _is_keras_v3:
             return keras_v3_to_hls(config)
 
     return keras_v2_to_hls(config)

@@ -165,7 +165,8 @@ def config_from_keras_model(
 
         # model is keras.Model here
 
-        if keras.__version__ > '3.0':
+        _is_keras_v3 = keras.__version__ > '3.0' and not type(model).__module__.startswith('tf_keras')
+        if _is_keras_v3:
             layer_list, *_ = hls4ml.converters.parse_keras_v3_model(model)
         else:
             model_arch = json.loads(model.to_json())
