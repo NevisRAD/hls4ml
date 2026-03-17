@@ -63,7 +63,7 @@ class HKLLoss(hls4ml.model.layers.Layer):
     ]
 
     def initialize(self):
-        self.add_output_variable(shape=[1], dim_names=[f'KL_LOSS_{self.index}'])
+        self.add_output_variable(shape=[1])
 
 
 # Templates
@@ -123,7 +123,7 @@ def parse_klloss_layer(keras_layer, input_names, input_shapes, data_reader):
 
 def main():
     # Register the converter for custom Keras layer
-    hls4ml.converters.register_keras_layer_handler('KLLoss', parse_klloss_layer)
+    hls4ml.converters.register_keras_v2_layer_handler('KLLoss', parse_klloss_layer)
 
     # Register the hls4ml's IR layer
     hls4ml.model.layers.register_layer('KLLoss', HKLLoss)

@@ -30,6 +30,7 @@ class VitisBackend(VivadoBackend):
             'vitis:validate_resource_unrolled_strategy',
             'vitis:validate_bidirectional_merge_mode',
             'vitis:validate_bidirectional_io_type',
+            'vitis:validate_std_cpp_types',
         ]
         validation_flow = register_flow('validation', validation_passes, requires=['vivado:init_layers'], backend=self.name)
 
@@ -63,6 +64,7 @@ class VitisBackend(VivadoBackend):
         namespace=None,
         write_weights_txt=True,
         write_tar=False,
+        write_emulation_constants=False,
         tb_output_stream='both',
         **_,
     ):
@@ -78,6 +80,8 @@ class VitisBackend(VivadoBackend):
             write_weights_txt (bool, optional): If True, writes weights to .txt files which speeds up compilation.
                 Defaults to True.
             write_tar (bool, optional): If True, compresses the output directory into a .tar.gz file. Defaults to False.
+            write_emulation_constants (bool, optional): If True, write constants to define.h useful for emulation.
+                Defaults to False.
             tb_output_stream (str, optional): Controls where to write the output. Options are 'stdout', 'file' and 'both'.
                 Defaults to 'both'.
 
@@ -96,6 +100,7 @@ class VitisBackend(VivadoBackend):
             'WriteWeightsTxt': write_weights_txt,
             'WriteTar': write_tar,
             'TBOutputStream': tb_output_stream,
+            'WriteEmulationConstants': write_emulation_constants,
         }
 
         return config
@@ -135,7 +140,7 @@ class VitisBackend(VivadoBackend):
         with open(tcl_path, 'w') as file:
             file.write(build_opts)
 
-        build_command = 'vitis-run --tcl build_prj.tcl'
+        build_command = 'vitis-run --tcl build_prj.tcl --mode hls'
 
         output_dir = model.config.get_output_dir()
         stdout_log = os.path.join(output_dir, 'build_stdout.log')

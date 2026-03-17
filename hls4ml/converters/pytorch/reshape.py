@@ -26,6 +26,9 @@ def parse_reshape_layer(operation, layer_name, input_names, input_shapes, node, 
                 cl.remove(-1)
                 layer['target_shape'][i] = int(size / np.prod(cl))
 
+    # remove the batch dimension
+    layer['target_shape'] = layer['target_shape'][1:]
+
     output_shape = input_shapes[0][:1] + layer['target_shape']
 
     return layer, output_shape
@@ -204,6 +207,8 @@ def parse_constantpad2d_layer(operation, layer_name, input_names, input_shapes, 
     layer['out_height'] = out_height
     layer['out_width'] = out_width
 
+    layer['data_format'] = 'channels_first'  # Default data format in PyTorch
+
     return layer, output_shape
 
 
@@ -242,5 +247,7 @@ def parse_constantpad1d_layer(operation, layer_name, input_names, input_shapes, 
     layer['n_chan'] = channels
     layer['in_width'] = width
     layer['out_width'] = out_width
+
+    layer['data_format'] = 'channels_first'  # Default data format in PyTorch
 
     return layer, output_shape
